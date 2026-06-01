@@ -318,8 +318,83 @@ const TOOLS = [
   { name:"nmap",     status:"missing", version:"—",      path:"—",                       lastUsed: null, role:"Network discovery", note:"binary not found in PATH (apt install nmap)" },
 ];
 
+/* ---------- Dependency graphs (CBOM / SBOM) ---------- */
+// kind: root | target | library | package | cert | key | algo
+const DEP_GRAPHS = {
+  // CBOM: scan → targets → certs/keys → crypto algorithms
+  cbom: {
+    nodes: [
+      { id: "scan",  label: "payments-prod",   sub: "CBOM aggregate", kind: "root" },
+      { id: "t-net", label: "edge-gateway:443", sub: "network",        kind: "target" },
+      { id: "t-ctr", label: "payments-svc:3.18.2", sub: "container",   kind: "target" },
+      { id: "t-src", label: "~/src/payments-svc", sub: "source",       kind: "target" },
+
+      { id: "cert-edge", label: "edge-gateway.prod", sub: "expires 7d", kind: "cert", risk: "high" },
+      { id: "cert-api",  label: "api.payments.corp", sub: "expires 22d", kind: "cert", risk: "warn" },
+      { id: "cert-chk",  label: "checkout-svc",      sub: "valid",       kind: "cert", risk: "ok" },
+      { id: "key-jwt",   label: "jwt.key",           sub: "RSA private", kind: "key",  risk: "warn" },
+      { id: "key-tls",   label: "tls-edge.key",      sub: "ECDSA",       kind: "key",  risk: "ok" },
+
+      { id: "a-rsa2048", label: "RSA-2048",      kind: "algo" },
+      { id: "a-rsa1024", label: "RSA-1024",      sub: "weak", kind: "algo", risk: "high" },
+      { id: "a-ecdsa",   label: "ECDSA P-256",   kind: "algo", risk: "ok" },
+      { id: "a-sha256",  label: "SHA-256",       kind: "algo", risk: "ok" },
+      { id: "a-sha1",    label: "SHA-1",         sub: "deprecated", kind: "algo", risk: "high" },
+    ],
+    edges: [
+      { from: "scan", to: "t-net" }, { from: "scan", to: "t-ctr" }, { from: "scan", to: "t-src" },
+      { from: "t-net", to: "cert-edge" }, { from: "t-net", to: "cert-api" }, { from: "t-net", to: "key-tls" },
+      { from: "t-ctr", to: "cert-chk" }, { from: "t-ctr", to: "key-jwt" },
+      { from: "t-src", to: "key-jwt" }, { from: "t-src", to: "cert-chk" },
+      { from: "cert-edge", to: "a-rsa2048" }, { from: "cert-edge", to: "a-sha256" },
+      { from: "cert-api", to: "a-rsa2048" }, { from: "cert-api", to: "a-sha256" },
+      { from: "cert-chk", to: "a-ecdsa" }, { from: "cert-chk", to: "a-sha256" },
+      { from: "key-jwt", to: "a-rsa1024" }, { from: "key-jwt", to: "a-sha1" },
+      { from: "key-tls", to: "a-ecdsa" },
+    ],
+  },
+
+  // SBOM: target → direct deps → transitive deps
+  sbom: {
+    nodes: [
+      { id: "root",   label: "payments-svc",  sub: "3.18.2",  kind: "root" },
+      { id: "express",label: "express",       sub: "4.18.2",  kind: "package" },
+      { id: "pg",     label: "pg",            sub: "8.11.3",  kind: "package" },
+      { id: "jsonwebtoken", label: "jsonwebtoken", sub: "9.0.2", kind: "package" },
+      { id: "openssl",label: "openssl",       sub: "3.0.11",  kind: "library", risk: "warn" },
+
+      { id: "body-parser", label: "body-parser", sub: "1.20.1", kind: "package" },
+      { id: "qs",     label: "qs",            sub: "6.11.0",  kind: "package" },
+      { id: "pg-pool",label: "pg-pool",       sub: "3.6.1",   kind: "package" },
+      { id: "jws",    label: "jws",           sub: "3.2.2",   kind: "package" },
+      { id: "semver", label: "semver",        sub: "7.5.4",   kind: "package" },
+
+      { id: "raw-body", label: "raw-body",    sub: "2.5.1",   kind: "package" },
+      { id: "ecdsa-sig",label: "ecdsa-sig-formatter", sub: "1.0.11", kind: "package" },
+      { id: "lodash", label: "lodash",        sub: "4.17.21", kind: "package", risk: "warn" },
+    ],
+    edges: [
+      { from: "root", to: "express" }, { from: "root", to: "pg" },
+      { from: "root", to: "jsonwebtoken" }, { from: "root", to: "openssl" },
+      { from: "express", to: "body-parser" }, { from: "express", to: "qs" },
+      { from: "body-parser", to: "raw-body" },
+      { from: "pg", to: "pg-pool" }, { from: "pg", to: "semver" },
+      { from: "jsonwebtoken", to: "jws" }, { from: "jsonwebtoken", to: "semver" },
+      { from: "jsonwebtoken", to: "lodash" },
+      { from: "jws", to: "ecdsa-sig" },
+      { from: "pg-pool", to: "lodash" },
+    ],
+  },
+};
+
+// Pick the right graph(s) a given scan can show, based on its artifacts
+function getDepGraph(scan, kind) {
+  return DEP_GRAPHS[kind] || null;
+}
+
 Object.assign(window, {
   NOW, SCAN_HISTORY, KPI_DATA, SCAN_TREND, SCAN_TYPE_DIST, CERT_RISK_DIST,
   EXPIRY_BUCKETS, ALGO_DIST, SBOM_ECOSYSTEM, TOP_RISK_ASSETS, SCAN_DURATION,
   CERTIFICATES, COMPONENTS, TOOLS,
+  DEP_GRAPHS, getDepGraph,
 });

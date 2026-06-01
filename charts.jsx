@@ -296,4 +296,158 @@ const Heatmap = ({ rows, cols, cells, max }) => {
   );
 };
 
-Object.assign(window, { LineChart, Donut, HBar, StackedBar, Sparkline, ExpiryTimeline, Heatmap, CHART_COLORS, RISK_COLORS });
+/* ============================================================
+   DependencyGraph — mermaid-style layered DAG (left→right)
+   graph = {
+     nodes: [{ id, label, sub?, kind, risk? }],
+     edges: [{ from, to, label? }]
+   }
+   kind: root | target | library | package | cert | key | algo
+   risk: high | warn | ok   (overrides kind color for border)
+   ============================================================ */
+const DEP_NODE_KIND = {
+  root:    { c: "var(--brand)",     label: "Scan" },
+  target:  { c: "var(--brand-2)",   label: "Target" },
+  library: { c: "var(--c4)",        label: "Library" },
+  package: { c: "var(--c4)",        label: "Package" },
+  cert:    { c: "var(--risk-info)", label: "Certificate" },
+  key:     { c: "var(--brand-2)",   label: "Key" },
+  algo:    { c: "var(--c3)",        label: "Algorithm" },
+};
+
+const DependencyGraph = ({ graph, height = 360 }) => {
+  const [hover, setHover] = useState(null);
+  const { nodes, edges } = graph;
+
+  // ---- layer assignment (longest path from roots) ----
+  const layer = {};
+  nodes.forEach(n => { layer[n.id] = 0; });
+  for (let iter = 0; iter < nodes.length; iter++) {
+    let changed = false;
+    edges.forEach(e => {
+      if (layer[e.to] < layer[e.from] + 1) { layer[e.to] = layer[e.from] + 1; changed = true; }
+    });
+    if (!changed) break;
+  }
+
+  const layers = {};
+  nodes.forEach(n => { (layers[layer[n.id]] = layers[layer[n.id]] || []).push(n); });
+  const colCount = Math.max(...Object.keys(layers).map(Number)) + 1;
+  const maxRows = Math.max(...Object.values(layers).map(a => a.length));
+
+  // ---- geometry ----
+  const nodeW = 158, nodeH = 38, hGap = 64, vGap = 16, padX = 14, padY = 16;
+  const W = padX * 2 + colCount * nodeW + (colCount - 1) * hGap;
+  const H = Math.max(height, padY * 2 + maxRows * (nodeH + vGap) - vGap);
+
+  const pos = {};
+  Object.entries(layers).forEach(([l, ns]) => {
+    const x = padX + Number(l) * (nodeW + hGap);
+    const colH = ns.length * (nodeH + vGap) - vGap;
+    const startY = (H - colH) / 2;
+    ns.forEach((n, i) => { pos[n.id] = { x, y: startY + i * (nodeH + vGap) }; });
+  });
+
+  // ---- adjacency for hover highlight ----
+  const neighbors = (id) => {
+    const set = new Set([id]);
+    edges.forEach(e => { if (e.from === id) set.add(e.to); if (e.to === id) set.add(e.from); });
+    return set;
+  };
+  const active = hover ? neighbors(hover) : null;
+  const edgeActive = (e) => !hover || e.from === hover || e.to === hover;
+  const nodeActive = (id) => !hover || active.has(id);
+
+  const colorOf = (n) =>
+    n.risk === "high" ? "var(--risk-high)"
+    : n.risk === "warn" ? "var(--risk-warn)"
+    : n.risk === "ok" ? "var(--risk-ok)"
+    : (DEP_NODE_KIND[n.kind]?.c || "var(--brand-2)");
+
+  const edgePath = (e) => {
+    const a = pos[e.from], b = pos[e.to];
+    if (!a || !b) return "";
+    const x1 = a.x + nodeW, y1 = a.y + nodeH / 2;
+    const x2 = b.x,         y2 = b.y + nodeH / 2;
+    const mx = (x1 + x2) / 2;
+    return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+  };
+
+  return (
+    <div style={{
+      overflow: "auto", border: "1px solid var(--line-subtle)", borderRadius: "var(--r)",
+      background: "var(--bg-panel-2)",
+      backgroundImage: "radial-gradient(var(--line-subtle) 1px, transparent 1px)",
+      backgroundSize: "18px 18px"
+    }}>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: "block", minWidth: "100%" }}
+        onMouseLeave={() => setHover(null)}>
+        <defs>
+          <marker id="dg-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--line-strong)" />
+          </marker>
+          <marker id="dg-arrow-hi" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--brand-2)" />
+          </marker>
+        </defs>
+
+        {/* edges */}
+        {edges.map((e, i) => {
+          const on = edgeActive(e);
+          const hot = hover && (e.from === hover || e.to === hover);
+          return (
+            <path key={i} d={edgePath(e)} fill="none"
+              stroke={hot ? "var(--brand-2)" : "var(--line-strong)"}
+              strokeWidth={hot ? 1.8 : 1.2}
+              opacity={on ? 1 : 0.18}
+              markerEnd={hot ? "url(#dg-arrow-hi)" : "url(#dg-arrow)"} />
+          );
+        })}
+
+        {/* nodes */}
+        {nodes.map(n => {
+          const p = pos[n.id];
+          const c = colorOf(n);
+          const on = nodeActive(n.id);
+          return (
+            <g key={n.id} transform={`translate(${p.x},${p.y})`}
+              opacity={on ? 1 : 0.28}
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => setHover(n.id)}>
+              <rect width={nodeW} height={nodeH} rx={6}
+                fill="var(--bg-card)" stroke={c}
+                strokeWidth={hover === n.id ? 2 : 1.2} />
+              <rect width={4} height={nodeH} rx={2} fill={c} />
+              <text x={12} y={n.sub ? 15 : 23} fontSize="12" fontFamily="var(--font-mono)"
+                fill="var(--fg)" fontWeight="500">
+                {n.label.length > 19 ? n.label.slice(0, 18) + "…" : n.label}
+              </text>
+              {n.sub && (
+                <text x={12} y={29} fontSize="10" fill="var(--fg-3)" fontFamily="var(--font-mono)">
+                  {n.sub.length > 22 ? n.sub.slice(0, 21) + "…" : n.sub}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+const DepGraphLegend = ({ kinds }) => (
+  <div className="legend" style={{ marginTop: 10 }}>
+    {kinds.map(k => (
+      <span key={k} className="legend-item">
+        <span className="legend-swatch" style={{ background: DEP_NODE_KIND[k]?.c, borderRadius: 2 }} />
+        {DEP_NODE_KIND[k]?.label || k}
+      </span>
+    ))}
+    <span className="legend-item" style={{ marginLeft: "auto" }}>
+      <span style={{ width: 10, height: 10, borderRadius: 2, border: "1.5px solid var(--risk-high)", display: "inline-block" }} />
+      high risk
+    </span>
+  </div>
+);
+
+Object.assign(window, { LineChart, Donut, HBar, StackedBar, Sparkline, ExpiryTimeline, Heatmap, DependencyGraph, DepGraphLegend, DEP_NODE_KIND, CHART_COLORS, RISK_COLORS });

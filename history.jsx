@@ -287,6 +287,10 @@ const FilterPicker = ({ label, value, onChange, options }) => (
 );
 
 const ScanDetailDrawer = ({ scan, onClose }) => {
+  const hasCbom = scan.artifacts.includes("full.cbom.json");
+  const hasSbom = scan.artifacts.includes("full.sbom.json");
+  const [graphKind, setGraphKind] = useState(hasCbom ? "cbom" : hasSbom ? "sbom" : null);
+  const graph = graphKind ? getDepGraph(scan, graphKind) : null;
   return (
     <>
       <div className="drawer-backdrop" onClick={onClose}/>
@@ -393,6 +397,51 @@ const ScanDetailDrawer = ({ scan, onClose }) => {
             padding:"10px 12px", borderRadius:4, fontFamily:"var(--font-mono)", fontSize:12.5,
             color:"var(--brand-2)", margin:0, marginBottom:18, whiteSpace:"pre-wrap"
           }}>{scan.scope}</pre>
+
+          {/* Dependency graph */}
+          <div style={{display:"flex", alignItems:"center", marginBottom:8}}>
+            <h3 style={{flex:1}}>Dependency graph</h3>
+            {(hasCbom || hasSbom) && (
+              <Segmented
+                value={graphKind}
+                onChange={setGraphKind}
+                options={[
+                  ...(hasCbom ? [{value:"cbom", label:"CBOM · crypto"}] : []),
+                  ...(hasSbom ? [{value:"sbom", label:"SBOM · components"}] : []),
+                ]}
+              />
+            )}
+          </div>
+          {graph ? (
+            <div style={{marginBottom:18}}>
+              <div style={{
+                display:"flex", alignItems:"center", gap:8, marginBottom:8,
+                fontSize:12, color:"var(--fg-3)"
+              }}>
+                <Icon name={graphKind === "cbom" ? "shield" : "package"} size={13}/>
+                <span style={{fontFamily:"var(--font-mono)"}}>
+                  {graphKind === "cbom" ? "full.cbom.json" : "full.sbom.json"}
+                </span>
+                <span>·</span>
+                <span>{graph.nodes.length} nodes · {graph.edges.length} edges</span>
+                <div className="spacer"/>
+                <span className="hint">hover a node to trace</span>
+              </div>
+              <DependencyGraph
+                graph={graph}
+                height={graphKind === "cbom" ? 380 : 360}
+              />
+              <DepGraphLegend kinds={graphKind === "cbom" ? ["root","target","cert","key","algo"] : ["root","package","library"]}/>
+            </div>
+          ) : (
+            <div style={{
+              padding:"18px", marginBottom:18, textAlign:"center",
+              border:"1px dashed var(--line)", borderRadius:"var(--r)",
+              color:"var(--fg-4)", fontSize:12.5
+            }}>
+              No CBOM / SBOM produced for this scan — dependency graph unavailable.
+            </div>
+          )}
 
           {/* Artifacts */}
           <h3 style={{marginBottom:8}}>Output artifacts</h3>
