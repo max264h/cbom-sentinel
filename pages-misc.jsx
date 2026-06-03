@@ -2,39 +2,40 @@
 
 /* ---------- CBOM / SBOM Reports ---------- */
 const Reports = () => {
+  const t = useT();
   const [tab, setTab] = useState("cbom");
   return (
     <div className="page">
       <div className="row" style={{marginBottom:14}}>
         <div>
-          <h1>CBOM / SBOM 報表</h1>
+          <h1>{t("CBOM / SBOM 報表","CBOM / SBOM Reports")}</h1>
           <div className="hint" style={{marginTop:4}}>
-            產生、合併與下載 BOM 報表 · CycloneDX 1.6 schema · {fmt.n(KPI_DATA.cbomCount)} CBOMs · {fmt.n(KPI_DATA.sbomCount)} SBOMs
+            {t("產生、合併與下載 BOM 報表 · CycloneDX 1.6 schema","Generate, merge and download BOM reports · CycloneDX 1.6 schema")} · {fmt.n(KPI_DATA.cbomCount)} CBOMs · {fmt.n(KPI_DATA.sbomCount)} SBOMs
           </div>
         </div>
         <div className="spacer"/>
-        <button className="btn"><Icon name="upload" size={13}/> Import BOM</button>
-        <button className="btn primary"><Icon name="plus" size={13}/> Generate report</button>
+        <button className="btn"><Icon name="upload" size={13}/> {t("匯入 BOM","Import BOM")}</button>
+        <button className="btn primary"><Icon name="plus" size={13}/> {t("產生報表","Generate report")}</button>
       </div>
 
       <div className="grid cols-4" style={{marginBottom:14}}>
-        <KPI label="CBOM artifacts" value={KPI_DATA.cbomCount} foot="CycloneDX 1.6 · crypto"/>
-        <KPI label="SBOM artifacts" value={KPI_DATA.sbomCount} foot="CycloneDX 1.6 · components"/>
-        <KPI label="Merged reports" value={42} foot="multi-scan aggregates"/>
-        <KPI label="Validation failed" value={KPI_DATA.validationFailed} tone="risk-warn" foot="schemas 1.5 / 1.6"/>
+        <KPI label={t("CBOM 產出","CBOM artifacts")} value={KPI_DATA.cbomCount} foot="CycloneDX 1.6 · crypto"/>
+        <KPI label={t("SBOM 產出","SBOM artifacts")} value={KPI_DATA.sbomCount} foot="CycloneDX 1.6 · components"/>
+        <KPI label={t("統整報表","Merged reports")} value={42} foot="multi-scan aggregates"/>
+        <KPI label={t("驗證失敗","Validation failed")} value={KPI_DATA.validationFailed} tone="risk-warn" foot="schemas 1.5 / 1.6"/>
       </div>
 
       <Tabs value={tab} onChange={setTab} tabs={[
-        { value:"cbom", label:"CBOM Reports", count: KPI_DATA.cbomCount, icon:"shield" },
-        { value:"sbom", label:"SBOM Reports", count: KPI_DATA.sbomCount, icon:"package" },
-        { value:"merged", label:"Merged",     count: 42,                  icon:"layers" },
+        { value:"cbom", label:t("CBOM 報表","CBOM Reports"), count: KPI_DATA.cbomCount, icon:"shield" },
+        { value:"sbom", label:t("SBOM 報表","SBOM Reports"), count: KPI_DATA.sbomCount, icon:"package" },
+        { value:"merged", label:t("統整","Merged"),     count: 42,                  icon:"layers" },
       ]}/>
 
       <Card flush>
         <div className="filters">
           <div className="topbar-search" style={{width:280}}>
             <Icon name="search" size={13}/>
-            <input placeholder="搜尋 report name / scope..."/>
+            <input placeholder={t("搜尋 report name / scope...","Search report name / scope...")}/>
           </div>
           <FilterPicker label="Schema" value="all" onChange={()=>{}} options={[
             {value:"all", label:"All"}, {value:"16", label:"CycloneDX 1.6"}, {value:"15", label:"CycloneDX 1.5"}
@@ -47,15 +48,15 @@ const Reports = () => {
           <thead>
             <tr>
               <th style={{width:32}}><Checkbox checked={false} onChange={()=>{}}/></th>
-              <th>Report</th>
-              <th>Type</th>
+              <th>{t("報表","Report")}</th>
+              <th>{t("類型","Type")}</th>
               <th>Schema</th>
-              <th>Source scans</th>
-              <th className="num">Components</th>
+              <th>{t("來源掃描","Source scans")}</th>
+              <th className="num">{t("元件","Components")}</th>
               <th className="num">Crypto</th>
-              <th>Validation</th>
-              <th>Size</th>
-              <th>Generated</th>
+              <th>{t("驗證","Validation")}</th>
+              <th>{t("大小","Size")}</th>
+              <th>{t("產生時間","Generated")}</th>
               <th></th>
             </tr>
           </thead>
@@ -80,7 +81,7 @@ const Reports = () => {
                     display:"inline-flex", alignItems:"center", gap:5,
                     background:"var(--bg-panel-3)", padding:"2px 8px", borderRadius:3, fontSize:12.5
                   }}>
-                    {r.scans} scan{r.scans>1?"s":""}
+                    {r.scans} {t("次掃描","scan")}{r.scans>1?"s":""}
                     <Icon name="chevronRight" size={11}/>
                   </span>
                 </td>
@@ -107,25 +108,26 @@ const Reports = () => {
 
 /* ---------- Tools & Env ---------- */
 const ToolsPage = () => {
+  const t = useT();
   return (
     <div className="page">
       <div className="row" style={{marginBottom:14}}>
         <div>
-          <h1>工具與環境狀態</h1>
+          <h1>{t("工具與環境狀態","Tools & Environment")}</h1>
           <div className="hint" style={{marginTop:4}}>
-            掃描相依的外部工具 · 版本 · 上次成功使用時間 · 環境健康度
+            {t("掃描相依的外部工具 · 版本 · 上次成功使用時間 · 環境健康度","External tools required for scanning · version · last used · health")}
           </div>
         </div>
         <div className="spacer"/>
-        <button className="btn"><Icon name="refresh" size={13}/> Re-detect</button>
-        <button className="btn primary"><Icon name="download" size={13}/> Install missing</button>
+        <button className="btn"><Icon name="refresh" size={13}/> {t("重新偵測","Re-detect")}</button>
+        <button className="btn primary"><Icon name="download" size={13}/> {t("安裝缺失工具","Install missing")}</button>
       </div>
 
       <div className="grid cols-4" style={{marginBottom:14}}>
-        <MiniHealth label="Healthy" value={TOOLS.filter(t=>t.status==="ok").length} total={TOOLS.length} tone="ok"/>
-        <MiniHealth label="Drift" value={TOOLS.filter(t=>t.status==="warn").length} total={TOOLS.length} tone="warn"/>
-        <MiniHealth label="Missing" value={TOOLS.filter(t=>t.status==="missing").length} total={TOOLS.length} tone="high"/>
-        <MiniHealth label="Last detected" value="2h ago" tone="info" raw/>
+        <MiniHealth label={t("正常","Healthy")} value={TOOLS.filter(t=>t.status==="ok").length} total={TOOLS.length} tone="ok"/>
+        <MiniHealth label={t("版本偏舊","Drift")} value={TOOLS.filter(t=>t.status==="warn").length} total={TOOLS.length} tone="warn"/>
+        <MiniHealth label={t("缺失","Missing")} value={TOOLS.filter(t=>t.status==="missing").length} total={TOOLS.length} tone="high"/>
+        <MiniHealth label={t("最後偵測","Last detected")} value="2h ago" tone="info" raw/>
       </div>
 
       <div className="grid" style={{gridTemplateColumns:"2fr 1fr", gap:16}}>
@@ -134,41 +136,41 @@ const ToolsPage = () => {
             <thead>
               <tr>
                 <th></th>
-                <th>Tool</th>
-                <th>Role</th>
-                <th>Version</th>
-                <th>Path</th>
-                <th>Last used</th>
-                <th>Status</th>
+                <th>{t("工具","Tool")}</th>
+                <th>{t("角色","Role")}</th>
+                <th>{t("版本","Version")}</th>
+                <th>{t("路徑","Path")}</th>
+                <th>{t("上次使用","Last used")}</th>
+                <th>{t("狀態","Status")}</th>
               </tr>
             </thead>
             <tbody>
-              {TOOLS.map((t, i) => (
+              {TOOLS.map((tool, i) => (
                 <tr key={i}>
                   <td style={{width:38}}>
                     <div style={{
                       width:26, height:26, borderRadius:5,
-                      background: t.status === "ok" ? "var(--risk-ok-soft)" : t.status === "warn" ? "var(--risk-warn-soft)" : "var(--risk-high-soft)",
-                      color: t.status === "ok" ? "var(--risk-ok)" : t.status === "warn" ? "var(--risk-warn)" : "var(--risk-high)",
+                      background: tool.status === "ok" ? "var(--risk-ok-soft)" : tool.status === "warn" ? "var(--risk-warn-soft)" : "var(--risk-high-soft)",
+                      color: tool.status === "ok" ? "var(--risk-ok)" : tool.status === "warn" ? "var(--risk-warn)" : "var(--risk-high)",
                       display:"grid", placeItems:"center"
                     }}>
-                      <Icon name={t.status === "ok" ? "check" : t.status === "warn" ? "alert" : "x"} size={13}/>
+                      <Icon name={tool.status === "ok" ? "check" : tool.status === "warn" ? "alert" : "x"} size={13}/>
                     </div>
                   </td>
-                  <td style={{fontWeight:500, fontFamily:"var(--font-mono)"}}>{t.name}</td>
-                  <td className="muted">{t.role}</td>
-                  <td className="mono">{t.version}</td>
-                  <td className="mono muted">{t.path}</td>
-                  <td className="muted">{t.lastUsed ? fmt.rel(t.lastUsed) : "—"}</td>
+                  <td style={{fontWeight:500, fontFamily:"var(--font-mono)"}}>{tool.name}</td>
+                  <td className="muted">{tool.role}</td>
+                  <td className="mono">{tool.version}</td>
+                  <td className="mono muted">{tool.path}</td>
+                  <td className="muted">{tool.lastUsed ? fmt.rel(tool.lastUsed) : "—"}</td>
                   <td>
-                    {t.status === "ok" && <Badge tone="ok" sq>READY</Badge>}
-                    {t.status === "warn" && (
-                      <div className="tip" data-tip={t.note}>
+                    {tool.status === "ok" && <Badge tone="ok" sq>READY</Badge>}
+                    {tool.status === "warn" && (
+                      <div className="tip" data-tip={tool.note}>
                         <Badge tone="warn" sq>DRIFT</Badge>
                       </div>
                     )}
-                    {t.status === "missing" && (
-                      <div className="tip" data-tip={t.note}>
+                    {tool.status === "missing" && (
+                      <div className="tip" data-tip={tool.note}>
                         <Badge tone="high" sq>MISSING</Badge>
                       </div>
                     )}
@@ -179,7 +181,7 @@ const ToolsPage = () => {
           </table>
         </Card>
 
-        <Card title="Environment" meta="host runtime">
+        <Card title={t("環境","Environment")} meta={t("主機執行環境","host runtime")}>
           <div style={{display:"flex", flexDirection:"column", gap:0}}>
             {[
               { k:"Hostname", v:"cbom-runner-01.corp"},
@@ -207,13 +209,13 @@ const ToolsPage = () => {
       </div>
 
       <div style={{marginTop:16}}>
-        <Card title="Worker activity" meta="last 60 min · queue + active workers">
+        <Card title={t("Worker 活動","Worker activity")} meta={t("最近 60 分鐘 · 佇列 + 活躍 workers","last 60 min · queue + active workers")}>
           <LineChart
             height={140}
             yTicks={3}
             series={[
-              { name:"Active workers", labels: ["−60m","−50m","−40m","−30m","−20m","−10m","now"], data:[2,3,5,6,8,7,8], color:"#5462a0", fillOpacity:0.16 },
-              { name:"Queue depth", data:[0,1,2,3,1,2,1], color:"var(--brand-2)", fillOpacity:0.10 },
+              { name:t("活躍 workers","Active workers"), labels: ["−60m","−50m","−40m","−30m","−20m","−10m","now"], data:[2,3,5,6,8,7,8], color:"#5462a0", fillOpacity:0.16 },
+              { name:t("佇列深度","Queue depth"), data:[0,1,2,3,1,2,1], color:"var(--brand-2)", fillOpacity:0.10 },
             ]}
           />
         </Card>
@@ -236,23 +238,24 @@ const MiniHealth = ({ label, value, total, tone, raw }) => {
 
 /* ---------- Settings ---------- */
 const Settings = () => {
+  const t = useT();
   const [section, setSection] = useState("general");
   const sections = [
-    { value:"general",  label:"General" },
-    { value:"sched",    label:"Schedules" },
-    { value:"validation", label:"Validation" },
-    { value:"notify",   label:"Notifications" },
-    { value:"access",   label:"Access" },
-    { value:"api",      label:"API tokens" },
+    { value:"general",  label:t("一般","General") },
+    { value:"sched",    label:t("排程","Schedules") },
+    { value:"validation", label:t("驗證","Validation") },
+    { value:"notify",   label:t("通知","Notifications") },
+    { value:"access",   label:t("存取","Access") },
+    { value:"api",      label:t("API 金鑰","API tokens") },
   ];
 
   return (
     <div className="page">
       <div className="row" style={{marginBottom:14}}>
         <div>
-          <h1>設定</h1>
+          <h1>{t("設定","Settings")}</h1>
           <div className="hint" style={{marginTop:4}}>
-            平台行為、整合與權限 · 對應設定檔 <span style={{fontFamily:"var(--font-mono)"}}>/etc/cbom/sentinel.yml</span>
+            {t("平台行為、整合與權限 · 對應設定檔","Platform behaviour, integrations & permissions · config file")} <span style={{fontFamily:"var(--font-mono)"}}>/etc/cbom/sentinel.yml</span>
           </div>
         </div>
       </div>
@@ -273,7 +276,7 @@ const Settings = () => {
         <div className="col">
           {section === "general" && (
             <>
-              <Card title="Workspace">
+              <Card title={t("工作空間","Workspace")}>
                 <div className="grid cols-2" style={{gap:14}}>
                   <div className="field">
                     <label className="field-label">Workspace name</label>
@@ -299,7 +302,7 @@ const Settings = () => {
                 </div>
               </Card>
 
-              <Card title="Defaults · new scans">
+              <Card title={t("新掃描預設值","Defaults · new scans")}>
                 <div className="grid cols-2" style={{gap:14}}>
                   <div className="field">
                     <label className="field-label">--max-workers</label>
@@ -339,10 +342,10 @@ const Settings = () => {
           )}
 
           {section === "sched" && (
-            <Card title="Scheduled scans" actions={<button className="btn primary sm"><Icon name="plus" size={11}/> New schedule</button>}>
+            <Card title={t("排程掃描","Scheduled scans")} actions={<button className="btn primary sm"><Icon name="plus" size={11}/> New schedule</button>}>
               <table className="table">
                 <thead>
-                  <tr><th>Name</th><th>Cron</th><th>Next run</th><th>Type</th><th>Status</th><th></th></tr>
+                  <tr><th>{t("名稱","Name")}</th><th>Cron</th><th>{t("下次執行","Next run")}</th><th>{t("類型","Type")}</th><th>{t("狀態","Status")}</th><th></th></tr>
                 </thead>
                 <tbody>
                   {[
@@ -366,7 +369,7 @@ const Settings = () => {
           )}
 
           {section === "validation" && (
-            <Card title="CycloneDX validation">
+            <Card title={t("CycloneDX 驗證","CycloneDX validation")}>
               <div className="grid cols-2" style={{gap:14}}>
                 <div className="field">
                   <label className="field-label">Default schema version</label>
@@ -395,7 +398,7 @@ const Settings = () => {
           )}
 
           {section === "notify" && (
-            <Card title="Notification channels">
+            <Card title={t("通知頻道","Notification channels")}>
               <div style={{display:"flex", flexDirection:"column", gap:1}}>
                 {[
                   { ch:"Slack · #sec-ops", events:"scan failed · cert expiring · validation failed", on:true},
@@ -418,10 +421,10 @@ const Settings = () => {
           )}
 
           {section === "access" && (
-            <Card title="Team members" actions={<button className="btn primary sm"><Icon name="plus" size={11}/> Invite</button>}>
+            <Card title={t("團隊成員","Team members")} actions={<button className="btn primary sm"><Icon name="plus" size={11}/> Invite</button>}>
               <table className="table">
                 <thead>
-                  <tr><th>User</th><th>Email</th><th>Role</th><th>Last active</th><th>Status</th></tr>
+                  <tr><th>{t("使用者","User")}</th><th>Email</th><th>{t("角色","Role")}</th><th>{t("最後活躍","Last active")}</th><th>{t("狀態","Status")}</th></tr>
                 </thead>
                 <tbody>
                   {[
@@ -445,10 +448,10 @@ const Settings = () => {
           )}
 
           {section === "api" && (
-            <Card title="API tokens" actions={<button className="btn primary sm"><Icon name="plus" size={11}/> New token</button>}>
+            <Card title={t("API 金鑰","API tokens")} actions={<button className="btn primary sm"><Icon name="plus" size={11}/> New token</button>}>
               <table className="table">
                 <thead>
-                  <tr><th>Name</th><th>Token</th><th>Scope</th><th>Created</th><th>Last used</th><th></th></tr>
+                  <tr><th>{t("名稱","Name")}</th><th>Token</th><th>{t("權限範圍","Scope")}</th><th>{t("建立時間","Created")}</th><th>{t("上次使用","Last used")}</th><th></th></tr>
                 </thead>
                 <tbody>
                   {[

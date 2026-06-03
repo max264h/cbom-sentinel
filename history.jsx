@@ -1,6 +1,7 @@
 // history.jsx — Scan history page with filters / batch ops / detail drawer
 
 const ScanHistory = ({ onNavigate }) => {
+  const t = useT();
   const [selected, setSelected] = useState(new Set());
   const [drawerScan, setDrawerScan] = useState(null);
   const [search, setSearch] = useState("");
@@ -31,9 +32,9 @@ const ScanHistory = ({ onNavigate }) => {
     <div className="page">
       <div className="row" style={{marginBottom:16}}>
         <div>
-          <h1>掃描紀錄</h1>
+          <h1>{t("掃描紀錄","Scan History")}</h1>
           <div className="hint" style={{marginTop:4}}>
-            {fmt.n(SCAN_HISTORY.length)} 筆紀錄 · 顯示 {fmt.n(filtered.length)} 筆 · 統整後可下載 / 比較 / 重新掃描
+            {fmt.n(SCAN_HISTORY.length)} {t("筆紀錄","records")} · {t("顯示","showing")} {fmt.n(filtered.length)} {t("筆","")} · {t("統整後可下載 / 比較 / 重新掃描","merge, compare or re-run")}
           </div>
         </div>
         <div className="spacer"/>
@@ -47,11 +48,11 @@ const ScanHistory = ({ onNavigate }) => {
 
       {/* Stats strip */}
       <div className="grid cols-5" style={{marginBottom:14}}>
-        <MiniStat label="Running" value={SCAN_HISTORY.filter(s=>s.status==="running").length} tone="info" status="running"/>
-        <MiniStat label="Success (7d)" value={SCAN_HISTORY.filter(s=>s.status==="success").length} tone="ok" status="success"/>
-        <MiniStat label="Partial" value={SCAN_HISTORY.filter(s=>s.status==="partial").length} tone="warn" status="partial"/>
-        <MiniStat label="Failed" value={SCAN_HISTORY.filter(s=>s.status==="failed").length} tone="high" status="failed"/>
-        <MiniStat label="Validation OK" value={SCAN_HISTORY.filter(s=>s.validated).length + " / " + SCAN_HISTORY.filter(s=>s.validated!==null).length} status="success"/>
+        <MiniStat label={t("執行中","Running")} value={SCAN_HISTORY.filter(s=>s.status==="running").length} tone="info" status="running"/>
+        <MiniStat label={t("成功 (7d)","Success (7d)")} value={SCAN_HISTORY.filter(s=>s.status==="success").length} tone="ok" status="success"/>
+        <MiniStat label={t("部分失敗","Partial")} value={SCAN_HISTORY.filter(s=>s.status==="partial").length} tone="warn" status="partial"/>
+        <MiniStat label={t("失敗","Failed")} value={SCAN_HISTORY.filter(s=>s.status==="failed").length} tone="high" status="failed"/>
+        <MiniStat label={t("驗證通過","Validation OK")} value={SCAN_HISTORY.filter(s=>s.validated).length + " / " + SCAN_HISTORY.filter(s=>s.validated!==null).length} status="success"/>
       </div>
 
       <Card flush>
@@ -60,25 +61,25 @@ const ScanHistory = ({ onNavigate }) => {
           <div className="topbar-search" style={{width:280}}>
             <Icon name="search" size={13}/>
             <input
-              placeholder="搜尋掃描名稱 / scope / id..."
+              placeholder={t("搜尋掃描名稱 / scope / id...","Search scan name / scope / id...")}
               value={search}
               onChange={e=>setSearch(e.target.value)}
             />
           </div>
           <FilterPicker
-            label="Status"
+            label={t("狀態","Status")}
             value={statusFilter}
             onChange={setStatusFilter}
             options={[
               {value:"all",     label:"All"},
-              {value:"running", label:"Running"},
+              {value:"running", label:t("執行中","Running")},
               {value:"success", label:"Success"},
-              {value:"partial", label:"Partial"},
-              {value:"failed",  label:"Failed"},
+              {value:"partial", label:t("部分失敗","Partial")},
+              {value:"failed",  label:t("失敗","Failed")},
             ]}
           />
           <FilterPicker
-            label="Type"
+            label={t("類型","Type")}
             value={typeFilter}
             onChange={setTypeFilter}
             options={[
@@ -90,13 +91,13 @@ const ScanHistory = ({ onNavigate }) => {
             ]}
           />
           <FilterPicker
-            label="Validated"
+            label={t("已驗證","Validated")}
             value="all"
             onChange={()=>{}}
             options={[
               {value:"all", label:"All"},
               {value:"yes", label:"Passed"},
-              {value:"no",  label:"Failed"},
+              {value:"no",  label:t("失敗","Failed")},
             ]}
           />
           <div className="spacer"/>
@@ -116,10 +117,10 @@ const ScanHistory = ({ onNavigate }) => {
             fontSize:13.5
           }}>
             <Checkbox checked={true} onChange={()=>setSelected(new Set())}/>
-            <span><strong>{selected.size}</strong> selected</span>
+            <span><strong>{selected.size}</strong> {t("已選擇","selected")}</span>
             <div className="spacer"/>
-            <button className="btn sm"><Icon name="layers" size={12}/> 統整 CBOM</button>
-            <button className="btn sm"><Icon name="layers" size={12}/> 統整 SBOM</button>
+            <button className="btn sm"><Icon name="layers" size={12}/> {t("統整 CBOM","Merge CBOM")}</button>
+            <button className="btn sm"><Icon name="layers" size={12}/> {t("統整 SBOM","Merge SBOM")}</button>
             <button className="btn sm"><Icon name="diff" size={12}/> Compare</button>
             <button className="btn sm"><Icon name="download" size={12}/> Export</button>
             <button className="btn sm danger"><Icon name="trash" size={12}/> Delete</button>
@@ -137,16 +138,16 @@ const ScanHistory = ({ onNavigate }) => {
                     onChange={toggleAll}
                   />
                 </th>
-                <th>掃描名稱</th>
-                <th>類型</th>
-                <th>狀態</th>
-                <th>範圍</th>
-                <th className="num">目標</th>
-                <th className="num">產出</th>
-                <th>時長</th>
+                <th>{t("掃描名稱","Scan name")}</th>
+                <th>{t("類型","Type")}</th>
+                <th>{t("狀態","Status")}</th>
+                <th>{t("範圍",t("掃描範圍","Scope"))}</th>
+                <th className="num">{t("目標",t("目標","Targets"))}</th>
+                <th className="num">{t("產出",t("產出","Artifacts"))}</th>
+                <th>{t("時長",t("時長","Duration"))}</th>
                 <th>CycloneDX</th>
-                <th>觸發</th>
-                <th>開始時間</th>
+                <th>{t("觸發","Triggered by")}</th>
+                <th>{t("開始時間","Started at")}</th>
                 <th style={{width:80}}>Actions</th>
               </tr>
             </thead>
@@ -168,7 +169,7 @@ const ScanHistory = ({ onNavigate }) => {
           padding:"10px 14px", display:"flex", alignItems:"center",
           fontSize:12.5, color:"var(--fg-3)", borderTop:"1px solid var(--line-subtle)"
         }}>
-          顯示 1 - {filtered.length} of {fmt.n(SCAN_HISTORY.length)} 筆
+          {t("顯示","Showing")} 1 - {filtered.length} {t("of","")} {fmt.n(SCAN_HISTORY.length)} {t("筆","records")}
           <div className="spacer"/>
           <div className="row" style={{gap:4}}>
             <button className="btn ghost sm" disabled><Icon name="chevronLeft" size={11}/></button>
@@ -184,11 +185,12 @@ const ScanHistory = ({ onNavigate }) => {
 };
 
 const ScanRow = ({ scan, selected, onToggle, onOpen }) => {
+  const t = useT();
   const statusLabel = {
-    running: "Running",
+    running: t("執行中","Running"),
     success: "Success",
-    partial: "Partial",
-    failed: "Failed",
+    partial: t("部分失敗","Partial"),
+    failed: t("失敗","Failed"),
     queued: "Queued",
     cancelled: "Cancelled",
   }[scan.status];
@@ -287,6 +289,7 @@ const FilterPicker = ({ label, value, onChange, options }) => (
 );
 
 const ScanDetailDrawer = ({ scan, onClose }) => {
+  const t = useT();
   const hasCbom = scan.artifacts.includes("full.cbom.json");
   const hasSbom = scan.artifacts.includes("full.sbom.json");
   const [graphKind, setGraphKind] = useState(hasCbom ? "cbom" : hasSbom ? "sbom" : null);
@@ -330,10 +333,10 @@ const ScanDetailDrawer = ({ scan, onClose }) => {
             <StatusDot status={scan.status}/>
             <div style={{flex:1}}>
               <div style={{fontWeight:500, color:"var(--fg)"}}>
-                {scan.status === "running" ? `Running · ${Math.round(scan.progress*100)}% complete`
-                  : scan.status === "success" ? "Scan completed successfully"
-                  : scan.status === "partial" ? `${scan.artifactsFail} of ${scan.artifactsOk + scan.artifactsFail} artifacts failed`
-                  : scan.status === "failed" ? "Scan failed before completion"
+                {scan.status === "running" ? `${t("執行中","Running")} · ${Math.round(scan.progress*100)}% ${t("完成","complete")}`
+                  : scan.status === "success" ? t("掃描成功完成","Scan completed successfully")
+                  : scan.status === "partial" ? `${scan.artifactsFail} ${t("of","")} ${scan.artifactsOk + scan.artifactsFail} ${t("個產出失敗","artifacts failed")}`
+                  : scan.status === "failed" ? t("掃描失敗","Scan failed before completion")
                   : "Unknown"}
               </div>
               {scan.error && <div style={{color:"var(--risk-high)", fontFamily:"var(--font-mono)", fontSize:12, marginTop:2}}>{scan.error}</div>}
@@ -342,9 +345,9 @@ const ScanDetailDrawer = ({ scan, onClose }) => {
 
           {/* Summary metrics */}
           <div className="grid cols-2" style={{gap:10, marginBottom:18}}>
-            <MetricBox label="Duration" value={scan.status === "running" ? "—" : fmt.dur(scan.duration)} mono/>
-            <MetricBox label="Targets" value={scan.targets} mono/>
-            <MetricBox label="Artifacts" value={`${scan.artifactsOk} / ${scan.artifactsOk + scan.artifactsFail}`} mono tone={scan.artifactsFail > 0 ? "warn" : "ok"}/>
+            <MetricBox label={t("時長","Duration")} value={scan.status === "running" ? "—" : fmt.dur(scan.duration)} mono/>
+            <MetricBox label={t("目標","Targets")} value={scan.targets} mono/>
+            <MetricBox label={t("產出","Artifacts")} value={`${scan.artifactsOk} / ${scan.artifactsOk + scan.artifactsFail}`} mono tone={scan.artifactsFail > 0 ? "warn" : "ok"}/>
             <MetricBox label="CycloneDX" value={scan.validated === true ? "PASS" : scan.validated === false ? "FAIL" : "—"} mono tone={scan.validated === true ? "ok" : scan.validated === false ? "high" : ""}/>
           </div>
 
@@ -471,11 +474,11 @@ const ScanDetailDrawer = ({ scan, onClose }) => {
         </div>
 
         <div style={{padding:"12px 18px", borderTop:"1px solid var(--line-subtle)", display:"flex", gap:8, background:"var(--bg-panel)"}}>
-          <button className="btn"><Icon name="diff" size={13}/> Compare</button>
-          <button className="btn"><Icon name="refresh" size={13}/> Re-run</button>
+          <button className="btn"><Icon name="diff" size={13}/> {t("比較","Compare")}</button>
+          <button className="btn"><Icon name="refresh" size={13}/> {t("重新執行","Re-run")}</button>
           <div className="spacer"/>
-          <button className="btn"><Icon name="download" size={13}/> Download all</button>
-          <button className="btn primary"><Icon name="layers" size={13}/> Add to report</button>
+          <button className="btn"><Icon name="download" size={13}/> {t("下載全部","Download all")}</button>
+          <button className="btn primary"><Icon name="layers" size={13}/> {t("加入報表","Add to report")}</button>
         </div>
       </div>
     </>

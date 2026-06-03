@@ -1,6 +1,7 @@
 // assets.jsx — Asset Inventory page with tabs
 
 const AssetInventory = () => {
+  const t = useT();
   const [tab, setTab] = useState("certs");
   const [search, setSearch] = useState("");
   const [riskFilter, setRiskFilter] = useState("all");
@@ -9,12 +10,12 @@ const AssetInventory = () => {
   const [detail, setDetail] = useState(null);
 
   const tabs = [
-    { value: "certs",      label: "憑證資產",     count: 2052, icon: "cert" },
-    { value: "keys",       label: "金鑰資產",     count: 487,  icon: "key" },
-    { value: "algos",      label: "加密演算法",   count: 31,   icon: "shield" },
-    { value: "components", label: "軟體元件",     count: 18472, icon: "package" },
-    { value: "targets",    label: "掃描目標",     count: 124,  icon: "server" },
-    { value: "network",    label: "網路服務",     count: 142,  icon: "globe" },
+    { value: "certs",      label: t("憑證資產","Certificates"),     count: 2052, icon: "cert" },
+    { value: "keys",       label: t("金鑰資產","Keys"),     count: 487,  icon: "key" },
+    { value: "algos",      label: t("加密演算法","Algorithms"),   count: 31,   icon: "shield" },
+    { value: "components", label: t("軟體元件","Components"),     count: 18472, icon: "package" },
+    { value: "targets",    label: t("掃描目標","Targets"),     count: 124,  icon: "server" },
+    { value: "network",    label: t("網路服務","Network services"),     count: 142,  icon: "globe" },
     { value: "containers", label: "Container",    count: 38,   icon: "container" },
   ];
 
@@ -22,14 +23,14 @@ const AssetInventory = () => {
     <div className="page">
       <div className="row" style={{marginBottom:14}}>
         <div>
-          <h1>資產資料</h1>
+          <h1>{t("資產資料","Asset Inventory")}</h1>
           <div className="hint" style={{marginTop:4}}>
-            多次掃描整合後的資產狀態 · 點任一筆深入檢視來源、依賴與風險脈絡
+            {t("多次掃描整合後的資產狀態 · 點任一筆深入檢視來源、依賴與風險脈絡","Asset state aggregated from multiple scans · click any row to drill into source, deps and risk context")}
           </div>
         </div>
         <div className="spacer"/>
         <button className="btn">
-          <Icon name="diff" size={13}/> Diff snapshots
+          <Icon name="diff" size={13}/> {t("比較快照","Diff snapshots")}
         </button>
         <button className="btn">
           <Icon name="download" size={13}/> Export CSV
@@ -64,6 +65,7 @@ const AssetInventory = () => {
 
 /* ---------- Certificates ---------- */
 const CertificatesTab = ({ search, setSearch, riskFilter, setRiskFilter, sourceFilter, setSourceFilter, selected, setSelected, detail, setDetail }) => {
+  const t = useT();
 
   const filtered = CERTIFICATES.filter(c => {
     if (riskFilter !== "all" && c.risk !== riskFilter) return false;
@@ -88,25 +90,25 @@ const CertificatesTab = ({ search, setSearch, riskFilter, setRiskFilter, sourceF
     <>
       {/* summary strip */}
       <div className="grid cols-4" style={{marginBottom:14}}>
-        <StatStrip icon="alert" tone="high" label="High risk" value={high} sub="needs immediate action"/>
-        <StatStrip icon="clock" tone="warn" label="Expiring < 90d" value={warn} sub="rotate during next window"/>
-        <StatStrip icon="check" tone="ok" label="Healthy" value={ok} sub="no concerns"/>
-        <StatStrip icon="x"     tone="high" label="Expired (in use)" value={expired} sub="still in production"/>
+        <StatStrip icon="alert" tone="high" label={t("高風險","High risk")} value={high} sub={t("需立即處理","needs immediate action")}/>
+        <StatStrip icon="clock" tone="warn" label={t("90天內到期","Expiring < 90d")} value={warn} sub={t("下次維護視窗輪換","rotate during next window")}/>
+        <StatStrip icon="check" tone="ok" label={t("正常","Healthy")} value={ok} sub={t("無異常","no concerns")}/>
+        <StatStrip icon="x" tone="high" label={t("已過期 (使用中)","Expired (in use)")} value={expired} sub={t("仍在生產環境","still in production")}/>
       </div>
 
       <Card flush>
         <div className="filters">
           <div className="topbar-search" style={{width:280}}>
             <Icon name="search" size={13}/>
-            <input placeholder="搜尋 CN / issuer / serial..." value={search} onChange={e=>setSearch(e.target.value)}/>
+            <input placeholder={t("搜尋 CN / issuer / serial...","Search CN / issuer / serial...")} value={search} onChange={e=>setSearch(e.target.value)}/>
           </div>
-          <FilterPicker label="Risk" value={riskFilter} onChange={setRiskFilter} options={[
-            {value:"all", label:"All"}, {value:"high", label:"High"}, {value:"warn", label:"Warn"}, {value:"ok", label:"OK"}
+          <FilterPicker label={t("風險","Risk")} value={riskFilter} onChange={setRiskFilter} options={[
+            {value:"all", label:t("全部","All")}, {value:"high", label:t("高","High")}, {value:"warn", label:t("警告","Warn")}, {value:"ok", label:"OK"}
           ]}/>
-          <FilterPicker label="Source" value={sourceFilter} onChange={setSourceFilter} options={[
-            {value:"all", label:"All"}, {value:"Source Code", label:"Source code"}, {value:"Network", label:"Network"}, {value:"Container", label:"Container"}
+          <FilterPicker label={t("來源","Source")} value={sourceFilter} onChange={setSourceFilter} options={[
+            {value:"all", label:t("全部","All")}, {value:"Source Code", label:t("原始碼","Source code")}, {value:"Network", label:"Network"}, {value:"Container", label:"Container"}
           ]}/>
-          <FilterPicker label="Key type" value="all" onChange={()=>{}} options={[
+          <FilterPicker label={t("金鑰類型","Key type")} value="all" onChange={()=>{}} options={[
             {value:"all", label:"All"}, {value:"RSA", label:"RSA"}, {value:"ECDSA", label:"ECDSA"}, {value:"Ed25519", label:"Ed25519"}
           ]}/>
           <div className="spacer"/>
@@ -119,9 +121,9 @@ const CertificatesTab = ({ search, setSearch, riskFilter, setRiskFilter, sourceF
             borderBottom:"1px solid rgba(84,98,160,0.4)",
             display:"flex", alignItems:"center", gap:10, fontSize:13.5
           }}>
-            <strong>{selected.size}</strong> selected
+            <strong>{selected.size}</strong> {t("已選擇","selected")}
             <div className="spacer"/>
-            <button className="btn sm"><Icon name="bell" size={12}/> Subscribe to rotation alerts</button>
+            <button className="btn sm"><Icon name="bell" size={12}/> {t("訂閱輪換通知","Subscribe to rotation alerts")}</button>
             <button className="btn sm"><Icon name="download" size={12}/> Export</button>
             <button className="btn sm">Add to CBOM report</button>
           </div>
@@ -132,16 +134,16 @@ const CertificatesTab = ({ search, setSearch, riskFilter, setRiskFilter, sourceF
             <thead>
               <tr>
                 <th style={{width:32}}><Checkbox checked={false} onChange={()=>{}}/></th>
-                <th>Common Name / Subject</th>
+                <th>{t("Common Name / Subject","Common Name / Subject")}</th>
                 <th>Issuer</th>
-                <th>Source</th>
-                <th>Origin</th>
-                <th className="num">Expires in</th>
-                <th>Valid until</th>
-                <th>Sig algo</th>
+                <th>{t("來源","Source")}</th>
+                <th>{t("位置","Origin")}</th>
+                <th className="num">{t("剩餘天數","Expires in")}</th>
+                <th>{t("到期日",t("到期日","Valid until"))}</th>
+                <th>{t("簽章演算法","Sig algo")}</th>
                 <th>Key</th>
-                <th>Risk</th>
-                <th>Seen in</th>
+                <th>{t("風險","Risk")}</th>
+                <th>{t("出現次數","Seen in")}</th>
                 <th style={{width:60}}></th>
               </tr>
             </thead>
@@ -237,7 +239,9 @@ const StatStrip = ({ icon, tone, label, value, sub }) => {
   );
 };
 
-const CertDetailDrawer = ({ cert, onClose }) => (
+const CertDetailDrawer = ({ cert, onClose }) => {
+  const t = useT();
+  return (
   <>
     <div className="drawer-backdrop" onClick={onClose}/>
     <div className="drawer">
@@ -255,14 +259,14 @@ const CertDetailDrawer = ({ cert, onClose }) => (
       </div>
 
       <div style={{overflowY:"auto", flex:1, padding:"16px 18px"}}>
-        <h3 style={{marginBottom:8}}>Lifecycle</h3>
+        <h3 style={{marginBottom:8}}>{t("生命週期","Lifecycle")}</h3>
         <div className="grid cols-3" style={{gap:10, marginBottom:18}}>
-          <MetricBox label="Valid from" value={cert.validFrom} mono/>
-          <MetricBox label="Valid until" value={cert.validTo} mono tone={cert.daysLeft < 30 ? "high" : cert.daysLeft < 90 ? "warn" : "ok"}/>
-          <MetricBox label="Days left" value={cert.daysLeft < 0 ? `−${Math.abs(cert.daysLeft)}` : cert.daysLeft} mono tone={cert.daysLeft < 30 ? "high" : cert.daysLeft < 90 ? "warn" : "ok"}/>
+          <MetricBox label={t("有效起始","Valid from")} value={cert.validFrom} mono/>
+          <MetricBox label={t("到期日","Valid until")} value={cert.validTo} mono tone={cert.daysLeft < 30 ? "high" : cert.daysLeft < 90 ? "warn" : "ok"}/>
+          <MetricBox label={t("剩餘天數","Days left")} value={cert.daysLeft < 0 ? `−${Math.abs(cert.daysLeft)}` : cert.daysLeft} mono tone={cert.daysLeft < 30 ? "high" : cert.daysLeft < 90 ? "warn" : "ok"}/>
         </div>
 
-        <h3 style={{marginBottom:8}}>Crypto profile</h3>
+        <h3 style={{marginBottom:8}}>{t("加密設定檔","Crypto profile")}</h3>
         <div style={{display:"flex", flexDirection:"column", gap:2, marginBottom:18}}>
           <KVRow k="Subject"    v={cert.cn} mono/>
           <KVRow k="Issuer"     v={cert.issuer} mono/>
@@ -276,11 +280,11 @@ const CertDetailDrawer = ({ cert, onClose }) => (
 
         <h3 style={{marginBottom:8}}>Findings</h3>
         <div style={{display:"flex", flexDirection:"column", gap:6, marginBottom:18}}>
-          {cert.daysLeft < 0 && <Finding tone="high" icon="alert" title="Certificate is expired and still observed" desc={`Expired ${Math.abs(cert.daysLeft)} days ago. Replace immediately and re-deploy.`}/>}
-          {cert.daysLeft >= 0 && cert.daysLeft < 30 && <Finding tone="high" icon="clock" title={`Expires in ${cert.daysLeft} days`} desc="Schedule rotation. Affected services should be notified."/>}
-          {cert.sigAlgo.includes("SHA-1") && <Finding tone="high" icon="shield" title="Weak signature algorithm: SHA-1" desc="SHA-1 is broken for collision resistance. Re-issue with SHA-256 or stronger."/>}
+          {cert.daysLeft < 0 && <Finding tone="high" icon="alert" title={t("憑證已過期且仍被觀察到","Certificate is expired and still observed")} desc={`Expired ${Math.abs(cert.daysLeft)} days ago. Replace immediately and re-deploy.`}/>}
+          {cert.daysLeft >= 0 && cert.daysLeft < 30 && <Finding tone="high" icon="clock" title={`Expires in ${cert.daysLeft} days`} desc={t("安排輪換，請通知受影響服務。","Schedule rotation. Affected services should be notified.")}/>}
+          {cert.sigAlgo.includes("SHA-1") && <Finding tone="high" icon="shield" title={t("弱簽章演算法：SHA-1","Weak signature algorithm: SHA-1")} desc={t("SHA-1 已被攻破，請改用 SHA-256 或更強。","SHA-1 is broken. Re-issue with SHA-256 or stronger.")}/>}
           {cert.keyType === "RSA" && cert.keySize < 2048 && <Finding tone="high" icon="key" title={`RSA-${cert.keySize} below minimum`} desc="RSA keys must be ≥ 2048 bits per current policy (NIST SP 800-131A)."/>}
-          {cert.selfSigned && <Finding tone="warn" icon="alert" title="Self-signed certificate" desc="Outside trust chain. Acceptable internally; flag if exposed externally."/>}
+          {cert.selfSigned && <Finding tone="warn" icon="alert" title={t("自簽憑證","Self-signed certificate")} desc={t("非可信任鏈，僅限內部使用，外部暴露需標記。","Outside trust chain. Acceptable internally; flag if exposed externally.")}/>}
         </div>
 
         <h3 style={{marginBottom:8}}>Observed in scans</h3>
@@ -311,6 +315,7 @@ const CertDetailDrawer = ({ cert, onClose }) => (
     </div>
   </>
 );
+};
 
 const KVRow = ({ k, v, mono, tone }) => (
   <div style={{
@@ -345,6 +350,7 @@ const Finding = ({ tone, icon, title, desc }) => {
 
 /* ---------- Components tab ---------- */
 const ComponentsTab = ({ search, setSearch, selected, setSelected }) => {
+  const t = useT();
   const filtered = COMPONENTS.filter(c =>
     !search || (c.name + " " + c.version + " " + c.purl).toLowerCase().includes(search.toLowerCase())
   );
@@ -354,12 +360,12 @@ const ComponentsTab = ({ search, setSearch, selected, setSelected }) => {
       <div className="filters">
         <div className="topbar-search" style={{width:280}}>
           <Icon name="search" size={13}/>
-          <input placeholder="搜尋 name / purl / target..." value={search} onChange={e=>setSearch(e.target.value)}/>
+          <input placeholder={t("搜尋 name / purl / target...","Search name / purl / target...")} value={search} onChange={e=>setSearch(e.target.value)}/>
         </div>
-        <FilterPicker label="Ecosystem" value="all" onChange={()=>{}} options={[
+        <FilterPicker label={t("生態系","Ecosystem")} value="all" onChange={()=>{}} options={[
           {value:"all", label:"All"}, {value:"npm", label:"npm"}, {value:"pypi", label:"PyPI"}, {value:"golang", label:"Go"}, {value:"maven", label:"Maven"}, {value:"debian", label:"deb"}
         ]}/>
-        <FilterPicker label="Tier" value="all" onChange={()=>{}} options={[
+        <FilterPicker label={t("可信度","Tier")} value="all" onChange={()=>{}} options={[
           {value:"all", label:"All"}, {value:"HIGH", label:"High"}, {value:"MEDIUM", label:"Medium"}, {value:"LOW", label:"Low"}
         ]}/>
         <div className="spacer"/>
@@ -371,16 +377,16 @@ const ComponentsTab = ({ search, setSearch, selected, setSelected }) => {
           <thead>
             <tr>
               <th style={{width:32}}><Checkbox checked={false} onChange={()=>{}}/></th>
-              <th>Component</th>
-              <th>Version</th>
-              <th>Type</th>
+              <th>{t("元件","Component")}</th>
+              <th>{t("版本","Version")}</th>
+              <th>{t("類型","Type")}</th>
               <th>Package URL</th>
-              <th>Target</th>
-              <th>Ecosystem</th>
-              <th className="num">Deps</th>
-              <th className="num">Dup</th>
-              <th>Accuracy</th>
-              <th>Sources</th>
+              <th>{t("目標","Target")}</th>
+              <th>{t("生態系","Ecosystem")}</th>
+              <th className="num">{t("依賴","Deps")}</th>
+              <th className="num">{t("重複","Dup")}</th>
+              <th>{t("可信度","Accuracy")}</th>
+              <th>{t("來源掃描","Sources")}</th>
             </tr>
           </thead>
           <tbody>
@@ -419,12 +425,14 @@ const ComponentsTab = ({ search, setSearch, selected, setSelected }) => {
 };
 
 /* ---------- Algorithms tab ---------- */
-const AlgorithmsTab = () => (
+const AlgorithmsTab = () => {
+  const t = useT();
+  return (
   <div className="grid" style={{gridTemplateColumns:"1fr 1fr"}}>
-    <Card title="演算法分布" meta="public-key + signature">
+    <Card title={t("演算法分布","Algorithm distribution")} meta={t("公鑰 + 簽章","public-key + signature")}>
       <HBar data={ALGO_DIST}/>
     </Card>
-    <Card title="Algorithm × Ecosystem" meta="usage heatmap">
+    <Card title={t("演算法 × 生態系","Algorithm × Ecosystem")} meta={t("使用熱圖","usage heatmap")}>
       <Heatmap
         rows={["RSA-2048","RSA-4096","ECDSA P-256","ECDSA P-384","Ed25519","SHA-256","SHA-1"]}
         cols={["npm","pypi","go","mvn","deb","ctr"]}
@@ -439,16 +447,16 @@ const AlgorithmsTab = () => (
         }}
       />
     </Card>
-    <Card title="弱演算法" meta="needs migration" style={{gridColumn:"1 / -1"}}>
+    <Card title={t("弱演算法","Weak algorithms")} meta={t("需要遷移","needs migration")} style={{gridColumn:"1 / -1"}}>
       <table className="table">
         <thead>
           <tr>
-            <th>Algorithm</th>
-            <th>Why</th>
-            <th>Recommended</th>
-            <th className="num">Assets</th>
-            <th className="num">Targets</th>
-            <th>Severity</th>
+            <th>{t("演算法","Algorithm")}</th>
+            <th>{t("原因","Why")}</th>
+            <th>{t("建議替代","Recommended")}</th>
+            <th className="num">{t("資產數","Assets")}</th>
+            <th className="num">{t("目標數","Targets")}</th>
+            <th>{t("嚴重度","Severity")}</th>
             <th></th>
           </tr>
         </thead>
@@ -475,26 +483,29 @@ const AlgorithmsTab = () => (
     </Card>
   </div>
 );
+};
 
 /* ---------- Keys tab ---------- */
-const KeysTab = () => (
+const KeysTab = () => {
+  const t = useT();
+  return (
   <Card flush>
     <div className="filters">
       <div className="topbar-search" style={{width:280}}>
         <Icon name="search" size={13}/>
-        <input placeholder="搜尋 fingerprint / origin..."/>
+        <input placeholder={t("搜尋 fingerprint / origin...","Search fingerprint / origin...")}/>
       </div>
-      <FilterPicker label="Type" value="all" onChange={()=>{}} options={[
+      <FilterPicker label={t("類型","Type")} value="all" onChange={()=>{}} options={[
         {value:"all", label:"All"}, {value:"private", label:"Private"}, {value:"public", label:"Public"}, {value:"symmetric", label:"Symmetric"}
       ]}/>
-      <FilterPicker label="Usage" value="all" onChange={()=>{}} options={[
+      <FilterPicker label={t("用途","Usage")} value="all" onChange={()=>{}} options={[
         {value:"all", label:"All"}, {value:"sign", label:"Sign"}, {value:"encrypt", label:"Encrypt"}, {value:"jwt", label:"JWT"}
       ]}/>
     </div>
     <table className="table">
       <thead>
         <tr>
-          <th>Fingerprint</th><th>Type</th><th>Algorithm</th><th>Origin</th><th>Usage</th><th>First seen</th><th>Last seen</th><th>Risk</th>
+          <th>Fingerprint</th><th>{t("類型","Type")}</th><th>{t("演算法","Algorithm")}</th><th>{t("位置","Origin")}</th><th>{t("用途","Usage")}</th><th>{t("首次發現","First seen")}</th><th>{t("最後發現","Last seen")}</th><th>{t("風險","Risk")}</th>
         </tr>
       </thead>
       <tbody>
@@ -521,16 +532,19 @@ const KeysTab = () => (
     </table>
   </Card>
 );
+};
 
 /* ---------- Targets tab ---------- */
-const TargetsTab = () => (
+const TargetsTab = () => {
+  const t = useT();
+  return (
   <Card flush>
     <div className="filters">
       <div className="topbar-search" style={{width:280}}>
         <Icon name="search" size={13}/>
-        <input placeholder="搜尋 target..."/>
+        <input placeholder={t("搜尋 target...","Search target...")}/>
       </div>
-      <FilterPicker label="Type" value="all" onChange={()=>{}} options={[
+      <FilterPicker label={t("類型","Type")} value="all" onChange={()=>{}} options={[
         {value:"all", label:"All"}, {value:"src", label:"Source"}, {value:"net", label:"Network"}, {value:"ctr", label:"Container"}
       ]}/>
       <FilterPicker label="Accuracy" value="all" onChange={()=>{}} options={[
@@ -540,7 +554,7 @@ const TargetsTab = () => (
     <table className="table">
       <thead>
         <tr>
-          <th>Target</th><th>Type</th><th>Source</th><th>Accuracy</th><th className="num">Certs</th><th className="num">Keys</th><th className="num">Components</th><th className="num">Warnings</th><th>Last scan</th>
+          <th>{t("目標","Target")}</th><th>{t("類型","Type")}</th><th>{t("來源","Source")}</th><th>{t("可信度","Accuracy")}</th><th className="num">Certs</th><th className="num">Keys</th><th className="num">Components</th><th className="num">Warnings</th><th>Last scan</th>
         </tr>
       </thead>
       <tbody>
@@ -571,13 +585,16 @@ const TargetsTab = () => (
     </table>
   </Card>
 );
+};
 
-const NetworkServicesTab = () => (
+const NetworkServicesTab = () => {
+  const t = useT();
+  return (
   <Card flush>
     <div className="filters">
       <div className="topbar-search" style={{width:280}}>
         <Icon name="search" size={13}/>
-        <input placeholder="搜尋 endpoint..."/>
+        <input placeholder={t("搜尋 endpoint...","Search endpoint...")}/>
       </div>
       <FilterPicker label="TLS" value="all" onChange={()=>{}} options={[
         {value:"all", label:"All"}, {value:"13", label:"TLS 1.3"}, {value:"12", label:"TLS 1.2"}, {value:"old", label:"≤ TLS 1.1"}
@@ -586,7 +603,7 @@ const NetworkServicesTab = () => (
     <table className="table">
       <thead>
         <tr>
-          <th>Endpoint</th><th>Port</th><th>Service</th><th>TLS</th><th>Cipher</th><th>Cert</th><th>HSTS</th><th>OCSP</th><th>Risk</th>
+          <th>Endpoint</th><th>Port</th><th>{t("服務","Service")}</th><th>TLS</th><th>Cipher</th><th>Cert</th><th>HSTS</th><th>OCSP</th><th>{t("風險","Risk")}</th>
         </tr>
       </thead>
       <tbody>
@@ -617,22 +634,25 @@ const NetworkServicesTab = () => (
     </table>
   </Card>
 );
+};
 
-const ContainersTab = () => (
+const ContainersTab = () => {
+  const t = useT();
+  return (
   <Card flush>
     <div className="filters">
       <div className="topbar-search" style={{width:280}}>
         <Icon name="search" size={13}/>
-        <input placeholder="搜尋 image..."/>
+        <input placeholder={t("搜尋 image...","Search image...")}/>
       </div>
-      <FilterPicker label="Registry" value="all" onChange={()=>{}} options={[
+      <FilterPicker label={t("登錄庫","Registry")} value="all" onChange={()=>{}} options={[
         {value:"all", label:"All"}, {value:"prod", label:"prod"}, {value:"staging", label:"staging"}
       ]}/>
     </div>
     <table className="table">
       <thead>
         <tr>
-          <th>Image</th><th>Tag</th><th>Digest</th><th>Size</th><th className="num">Layers</th><th className="num">Pkgs</th><th className="num">Certs</th><th className="num">Keys</th><th>Last scan</th><th>Risk</th>
+          <th>Image</th><th>Tag</th><th>Digest</th><th>{t("大小","Size")}</th><th className="num">Layers</th><th className="num">{t("套件","Pkgs")}</th><th className="num">Certs</th><th className="num">Keys</th><th>Last scan</th><th>{t("風險","Risk")}</th>
         </tr>
       </thead>
       <tbody>
@@ -660,5 +680,7 @@ const ContainersTab = () => (
     </table>
   </Card>
 );
+};
 
 window.AssetInventory = AssetInventory;
+
